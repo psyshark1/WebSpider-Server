@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(httpserver)
+project(WebSpider_Server)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_definitions(_WIN32_WINNT=0x0A01)
 
@@ -22,9 +22,17 @@ find_package(OpenSSL REQUIRED)
 add_subdirectory(${libpqxx_DIR} "libpqxx-build") 
 set(PostgreSQL_ADDITIONAL_VERSIONS "11")
 
-add_executable(httpserver http_server.h http_server.cpp main.cpp)
+include_directories(INI_Parser)
+include_directories(ExceptINI)
+
+add_executable(WebSpider_Server stringstructs.h http_server.h http_server.cpp main.cpp)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+add_subdirectory(INI_Parser)
+add_subdirectory(ExceptINI)
 
 #add_library(httpserver STATIC ${HTTPSERV})
-target_link_libraries(httpserver PUBLIC ${Boost_LIBRARIES} OpenSSL::SSL libpqxx::pqxx)
-target_include_directories(httpserver PRIVATE ${Boost_INCLUDE_DIRS})
-target_compile_features(httpserver PRIVATE cxx_std_17) 
+target_link_libraries(WebSpider_Server PUBLIC iniparser ${Boost_LIBRARIES} OpenSSL::SSL libpqxx::pqxx)
+target_include_directories(WebSpider_Server PRIVATE ${Boost_INCLUDE_DIRS})
+target_compile_features(WebSpider_Server PRIVATE cxx_std_17) 

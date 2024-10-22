@@ -318,7 +318,7 @@ std::vector<std::string> http_server::getSQLresult(std::string& query)
 		}
 		return result;
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		nt->abort();
 		result.push_back(e.what());
