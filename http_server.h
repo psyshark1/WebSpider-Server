@@ -5,10 +5,23 @@
 #include <codecvt>
 #include <iostream>
 #include <pqxx/pqxx>
+#include <boost/locale.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
+
+#ifndef MIN_WORD_LENGTH
+#define MIN_WORD_LENGTH 3
+#endif
+
+#ifndef MAX_WORD_LENGTH
+#define MAX_WORD_LENGTH 32
+#endif
+
+#ifndef MAX_WORDS_QUERY
+#define MAX_WORDS_QUERY 4
+#endif
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -53,4 +66,5 @@ private:
 	const std::string* dbTblDocsName;
 	const std::string* dbTblWordsName;
 	const std::string* dbTblIndexerName;
+	void locale_init() noexcept;
 };

@@ -26,6 +26,7 @@ std::string convert_to_utf8(const std::string& encoded)
 http_server::http_server(tcp::socket socket, std::string* dbTblDocsName, std::string* dbTblWordsName, std::string* dbTblIndexerName, pqxx::nontransaction* nt) : socket_(std::move(socket)),
 dbTblDocsName(std::move(dbTblDocsName)), dbTblWordsName(std::move(dbTblWordsName)), dbTblIndexerName(std::move(dbTblIndexerName)), nt(std::move(nt))
 {
+	locale_init();
 }
 
 void http_server::start()
@@ -130,6 +131,7 @@ void http_server::createResponsePost()
 		std::string value = s.substr(pos + 1);
 
 		std::string utf8value = convert_to_utf8(value);
+		boost::locale::to_lower(utf8value);
 
 		if (key != "search")
 		{
@@ -252,11 +254,11 @@ std::vector<std::string> http_server::getSQLresult(std::string& query)
 	{
 		if (query[i] == 43)
 		{
-			if (buf.size() > 3 && buf.size() < 31)
+			if (buf.size() >= MIN_WORD_LENGTH && buf.size() <= MAX_WORD_LENGTH)
 			{
 				words[buf] = 0;
 				buf.clear();
-				if (words.size() == 4) { break; }
+				if (words.size() == MAX_WORDS_QUERY) { break; }
 			}
 		}
 		else if (!((query[i] >= 0 && query[i] < 32) ||
@@ -265,10 +267,10 @@ std::vector<std::string> http_server::getSQLresult(std::string& query)
 			(query[i] > 90 && query[i] < 97) ||
 			(query[i] > 122 && query[i] < 128)))
 		{
-			buf.push_back(query[i]);
+			(buf.size() <= MAX_WORD_LENGTH) ? buf.push_back(query[i]) : false;
 		}
 	}
-	if (!words.size() && (buf.size() > 3 && buf.size() < 31))
+	if (!words.size() && (buf.size() >= MIN_WORD_LENGTH && buf.size() <= MAX_WORD_LENGTH))
 	{
 		words[buf] = 0; buf.clear();
 	}
@@ -324,6 +326,14 @@ std::vector<std::string> http_server::getSQLresult(std::string& query)
 		result.push_back(e.what());
 		return result;
 	}
+}
+
+inline void http_server::locale_init() noexcept
+{
+	boost::locale::generator gen;
+	std::locale loc = gen("");
+	std::locale::global(loc);
+	std::cout.imbue(loc);
 }
 
 http_server::~http_server()

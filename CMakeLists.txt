@@ -12,7 +12,7 @@ set(Boost_USE_MULTITHREADED ON)
 
 set(BOOST_ROOT "D:\\dev\\boost_1_85")
 
-find_package(Boost REQUIRED COMPONENTS system thread)
+find_package(Boost REQUIRED COMPONENTS system thread locale)
 
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "Could not find Boost")
